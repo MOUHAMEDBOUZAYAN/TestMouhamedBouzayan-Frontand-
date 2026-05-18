@@ -7,10 +7,21 @@ const getStoredToken = () => localStorage.getItem(TOKEN_KEY)
 const getErrorMessage = (error) =>
   error.response?.data?.message || error.message || 'Something went wrong'
 
-const extractAuthData = (data) => ({
-  token: data.token || data.accessToken || null,
-  user: data.user ?? null,
-})
+const extractAuthData = (response) => {
+  // Backend format: { success, message, data: { user, token } }
+  const payload =
+    response?.data?.token || response?.data?.user ? response.data : response
+
+  return {
+    token:
+      payload?.token ??
+      payload?.accessToken ??
+      response?.token ??
+      response?.accessToken ??
+      null,
+    user: payload?.user ?? response?.user ?? null,
+  }
+}
 
 const useAuthStore = create((set) => ({
   user: null,
