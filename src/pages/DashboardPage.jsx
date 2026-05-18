@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
+import TaskList from '../components/tasks/TaskList'
 import Button from '../components/ui/Button'
 
 function DashboardPage() {
@@ -8,7 +9,7 @@ function DashboardPage() {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -28,9 +29,7 @@ function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <p className="text-slate-600">
-          Dashboard is ready. Task components will be added in the next step.
-        </p>
+        <TaskList />
       </main>
     </div>
   )
