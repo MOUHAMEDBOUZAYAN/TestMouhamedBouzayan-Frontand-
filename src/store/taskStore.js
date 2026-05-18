@@ -4,11 +4,15 @@ import * as taskService from '../services/task.service'
 const getErrorMessage = (error) =>
   error.response?.data?.message || error.message || 'Something went wrong'
 
-const normalizeTasks = (data) => {
-  if (Array.isArray(data)) return data
-  if (data?.tasks) return data.tasks
+const normalizeTasks = (response) => {
+  if (Array.isArray(response)) return response
+  if (response?.data?.tasks) return response.data.tasks
+  if (response?.tasks) return response.tasks
   return []
 }
+
+const extractTask = (response) =>
+  response?.data?.task ?? response?.task ?? response
 
 const getTaskId = (task) => task.id ?? task._id
 
@@ -34,7 +38,7 @@ const useTaskStore = create((set) => ({
     set({ loading: true, error: null })
     try {
       const data = await taskService.createTask(taskData)
-      const task = data.task ?? data
+      const task = extractTask(data)
 
       set((state) => ({
         tasks: [...state.tasks, task],
@@ -52,7 +56,7 @@ const useTaskStore = create((set) => ({
     set({ loading: true, error: null })
     try {
       const data = await taskService.updateTask(id, taskData)
-      const updated = data.task ?? data
+      const updated = extractTask(data)
 
       set((state) => ({
         tasks: state.tasks.map((task) =>
