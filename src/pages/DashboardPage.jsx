@@ -1,15 +1,24 @@
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import TaskList from '../components/tasks/TaskList'
 import Button from '../components/ui/Button'
+import Modal from '../components/ui/Modal'
 
 function DashboardPage() {
   const navigate = useNavigate()
   const { user, logout, loading } = useAuthStore()
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login', { replace: true })
+  const handleConfirmLogout = async () => {
+    try {
+      await logout()
+      toast.success('Logged out successfully')
+      navigate('/login', { replace: true })
+    } catch {
+      toast.error('Unable to logout')
+    }
   }
 
   return (
@@ -21,7 +30,11 @@ function DashboardPage() {
             {user?.name && (
               <span className="text-sm text-slate-600">Hello, {user.name}</span>
             )}
-            <Button variant="secondary" onClick={handleLogout} loading={loading}>
+            <Button
+              variant="secondary"
+              onClick={() => setIsLogoutModalOpen(true)}
+              loading={loading}
+            >
               Logout
             </Button>
           </div>
@@ -31,6 +44,30 @@ function DashboardPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         <TaskList />
       </main>
+
+      <Modal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        title="Logout"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setIsLogoutModalOpen(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleConfirmLogout} loading={loading}>
+              Logout
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-slate-600">
+          Are you sure you want to logout from your account?
+        </p>
+      </Modal>
     </div>
   )
 }
